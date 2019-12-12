@@ -6,9 +6,10 @@ class SubscriptionScreen extends StatefulWidget {
   _SubscriptionScreenState createState() => _SubscriptionScreenState();
 }
 
-class _SubscriptionScreenState extends State<SubscriptionScreen> {
+class _SubscriptionScreenState extends State<SubscriptionScreen> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return ListView.builder(
       itemCount: dummyData.length,
       itemBuilder: (context, i) => ListTile(
@@ -33,4 +34,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'pages/discover_screen.dart';
 import 'pages/subscription_screen.dart';
+import 'pages/user_screen.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -10,63 +12,106 @@ class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     SubscriptionScreen(),
-    PlaceholderWidget('发现'),
-    PlaceholderWidget('我的')
+    DiscoverScreen(),
+    UserScreen(),
   ];
+  final pageController = PageController();
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  void onTabTapped(int index) {
+    pageController.jumpToPage(index);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sample Code'),
+        title: Text('Skeeter'),
         elevation: 1,
-        actions: <Widget>[
-          Icon(Icons.search),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5.0),
-          ),
-          Icon(Icons.more_vert)
-        ],
+        centerTitle: false,
+        actions: _buildAppBarActions(),
       ),
-      body: _children[_currentIndex],
-      bottomNavigationBar: new BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.rss_feed),
-            title: Text('阅读'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            title: Text('发现')
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            title: Text('我的')
-          )
-        ],
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.amber[800]
+      body: PageView(
+        controller: pageController,
+        onPageChanged: _onPageChanged,
+        children: _children,
+        physics: NeverScrollableScrollPhysics(), // 禁止滑动
       ),
+      bottomNavigationBar: _buildBottomNavigationBar()
     );
   }
 
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  List<Widget> _buildAppBarActions() {
+    if (_currentIndex == 2) {
+      return [];
+    }
+
+    if (_currentIndex == 1) {
+      return [
+        _buildAddRssButton(),
+        _buildSearchRssButton()
+      ];
+    }
+
+    return [
+      _buildRefreshButton(),
+      _buildAllListButton(),
+      _buildAddRssButton(),
+    ];
   }
-}
 
-class PlaceholderWidget extends StatelessWidget {
-  final String text;
+  IconButton _buildRefreshButton() {
+    return IconButton(
+      icon: Icon(Icons.autorenew),
+      onPressed: () {}
+    );
+  }
 
-  PlaceholderWidget(this.text);
+  IconButton _buildAllListButton() {
+    return IconButton(
+      icon: Icon(Icons.filter_list),
+      onPressed: () {}
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(text)
+  IconButton _buildAddRssButton() {
+    return IconButton(
+      icon: Icon(Icons.add),
+      onPressed: () {}
+    );
+  }
+
+  IconButton _buildSearchRssButton() {
+    return IconButton(
+      icon: Icon(Icons.search),
+      onPressed: () {}
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return BottomNavigationBar(
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.rss_feed),
+          title: Text('阅读'),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search),
+          title: Text('发现')
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          title: Text('我的')
+        )
+      ],
+      onTap: onTabTapped,
+      currentIndex: _currentIndex,
+      selectedItemColor: Colors.amber[800]
     );
   }
 }
