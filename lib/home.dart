@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'pages/discover_screen.dart';
 import 'pages/subscription_screen.dart';
 import 'pages/user_screen.dart';
+import 'common/funcs.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -82,7 +83,10 @@ class _HomeState extends State<Home> {
   IconButton _buildAddRssButton() {
     return IconButton(
       icon: Icon(Icons.add),
-      onPressed: () {}
+      onPressed: () async {
+        var result = await showAddRssDialog(context);
+        print(result);
+      }
     );
   }
 
