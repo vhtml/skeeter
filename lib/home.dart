@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:skeeter/models/rss_item_model.dart';
+import 'dao/rss_dao.dart';
 import 'pages/discover_screen.dart';
 import 'pages/subscription_screen.dart';
 import 'pages/user_screen.dart';
@@ -84,8 +86,10 @@ class _HomeState extends State<Home> {
     return IconButton(
       icon: Icon(Icons.add),
       onPressed: () async {
-        var result = await showAddRssDialog(context);
-        print(result);
+        String rssLink = await showAddRssDialog(context);
+        RssItemModel rssItem = await RssDao.fetch(rssLink);
+        var rssDao = RssDao();
+        rssDao.insert(rssItem);
       }
     );
   }

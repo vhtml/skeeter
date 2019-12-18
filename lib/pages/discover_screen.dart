@@ -25,7 +25,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> with TickerProviderStat
 
   @override
   void initState() {
-    print(1);
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
     // _tabController.addListener(() {

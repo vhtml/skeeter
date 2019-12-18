@@ -1,109 +1,35 @@
 class RssItemModel {
-  final String avatarUrl;
+  final int id;
+  final String iconUrl;
   final String title;
-  final int unReadCount;
+  final String link;
+  final String lastBuildDate;
+  final int createdAt;
 
   RssItemModel({
-    this.avatarUrl,
+    this.id,
+    this.iconUrl,
     this.title,
-    this.unReadCount
+    this.link,
+    this.lastBuildDate,
+    this.createdAt
   });
-}
 
-List<RssItemModel> dummyData = [
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选知乎每日精选知乎每日精选知乎每日精选知乎每日精选知乎每日精选知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '喷嚏图卦',
-    unReadCount: 10
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  ),
-  RssItemModel(
-    avatarUrl: 'https://pic4.zhimg.com/349c2b160_m.jpg',
-    title: '知乎每日精选',
-    unReadCount: 6
-  )
-];
+  factory RssItemModel.fromJson(Map<String, dynamic> json) => RssItemModel(
+    id: json['id'],
+    iconUrl: json['icon_url'],
+    title: json['title'],
+    link: json['link'],
+    lastBuildDate: json['last_build_date'],
+    createdAt: json['createdAt'],
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': this.id,
+    'icon_url': this.iconUrl,
+    'title': this.title,
+    'link': this.link,
+    'last_build_date': this.lastBuildDate,
+    'createdAt': this.createdAt
+  };
+}
