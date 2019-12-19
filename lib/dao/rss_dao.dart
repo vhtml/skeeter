@@ -1,5 +1,5 @@
-import '../db/db_provider.dart';
-import '../models/rss_item_model.dart';
+import 'package:skeeter/db/db_provider.dart';
+import 'package:skeeter/models/single_rss_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:http/http.dart' as http;
 import 'package:webfeed/webfeed.dart';
@@ -42,12 +42,16 @@ class RssDao extends BaseDBProvider {
   Future queryAll() async {
     Database db = await getDatabase();
     List<Map<String, dynamic>> maps = await db.query(tableName());
-    List<RssItemModel> rssList = maps.map<RssItemModel>((el) => RssItemModel.fromJson(el)).toList();
+    List<SingleRss> rssList = maps.map<SingleRss>((el) => SingleRss.fromJson(el)).toList();
     return rssList;
   }
 
   // 根据url查询数据
   Future queryByUrl(String url) async {
+    if (url.isEmpty) {
+      return null;
+    }
+
     Database db = await getDatabase();
     String origin = Uri.parse(url).origin;
     List<Map<String, dynamic>> maps = await db.rawQuery("SELECT * FROM $name WHERE $columnLink Like '%$origin%'");
@@ -55,11 +59,12 @@ class RssDao extends BaseDBProvider {
   }
 
   // 插入数据
-  Future insert(RssItemModel rss) async {
-    Database db = await getDatabase();
-    var res = await queryByUrl(rss.link);
+  Future insert(SingleRss rss) async {
+    var res = await queryByUrl(rss.link ?? '');
 
     if (res == null || res.length == 0) {
+      Database db = await getDatabase();
+      
       return await db.rawInsert('''
           INSERT INTO $name (
             $columnIconUrl,
@@ -87,13 +92,16 @@ class RssDao extends BaseDBProvider {
   }
 
   // http拉取数据
-  static Future<RssItemModel> fetch(rssLink) async {
+  static Future<SingleRss> fetch(rssLink) async {
     var link = _normalizeUrl(rssLink);
+    if (link == null) {
+      return null;
+    }
 
     try {
       final response = await http.get(link);
       var rss = RssFeed.parse(response.body);
-      return RssItemModel(
+      return SingleRss(
         iconUrl: rss.image?.url,
         title: rss.title,
         link: link,

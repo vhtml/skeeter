@@ -1,35 +1,39 @@
-class RssItemModel {
+class SingleRssFeed {
   final int id;
-  final String iconUrl;
+  final int rssId;
   final String title;
+  final String author;
+  final String content;
   final String link;
-  final String lastBuildDate;
   final int createdAt;
 
-  RssItemModel({
+  SingleRssFeed({
     this.id,
-    this.iconUrl,
+    this.rssId,
     this.title,
+    this.author,
+    this.content,
     this.link,
-    this.lastBuildDate,
     this.createdAt
   });
 
-  factory RssItemModel.fromJson(Map<String, dynamic> json) => RssItemModel(
+  factory SingleRssFeed.fromJson(Map<String, dynamic> json) => SingleRssFeed(
     id: json['id'],
-    iconUrl: json['icon_url'],
+    rssId: json['rss_id'],
     title: json['title'],
+    author: json['author'],
+    content: json['content'],
     link: json['link'],
-    lastBuildDate: json['last_build_date'],
     createdAt: json['createdAt'],
   );
 
   Map<String, dynamic> toJson() => {
     'id': this.id,
-    'icon_url': this.iconUrl,
+    'rss_id': this.rssId,
     'title': this.title,
+    'author': this.author,
+    'content': this.content,
     'link': this.link,
-    'last_build_date': this.lastBuildDate,
     'createdAt': this.createdAt
   };
 }

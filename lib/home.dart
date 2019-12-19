@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:skeeter/models/rss_item_model.dart';
 import 'dao/rss_dao.dart';
+import 'models/single_rss_model.dart';
 import 'pages/discover_screen.dart';
 import 'pages/subscription_screen.dart';
 import 'pages/user_screen.dart';
@@ -11,14 +11,15 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   final List<Widget> _children = [
     SubscriptionScreen(),
     DiscoverScreen(),
     UserScreen(),
   ];
-  final pageController = PageController();
+  final _pageController = PageController();
+  AnimationController _animController;
 
   void _onPageChanged(int index) {
     setState(() {
@@ -27,7 +28,21 @@ class _HomeState extends State<Home> {
   }
 
   void onTabTapped(int index) {
-    pageController.jumpToPage(index);
+    _pageController.jumpToPage(index);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(duration: const Duration(milliseconds: 1500), vsync: this);
+    _animController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        // 重置起点
+        _animController.reset();
+        //开始执行
+        _animController.forward();
+      }
+    });
   }
 
   @override
@@ -40,7 +55,7 @@ class _HomeState extends State<Home> {
         actions: _buildAppBarActions(),
       ),
       body: PageView(
-        controller: pageController,
+        controller: _pageController,
         onPageChanged: _onPageChanged,
         children: _children,
         physics: NeverScrollableScrollPhysics(), // 禁止滑动
@@ -68,10 +83,16 @@ class _HomeState extends State<Home> {
     ];
   }
 
-  IconButton _buildRefreshButton() {
-    return IconButton(
-      icon: Icon(Icons.autorenew),
-      onPressed: () {}
+  Widget _buildRefreshButton() {
+    return RotationTransition(
+      alignment: Alignment.center,
+      turns: _animController,
+      child: IconButton(
+        icon: Icon(Icons.autorenew),
+        onPressed: () {
+          _animController.forward();
+        }
+      )
     );
   }
 
@@ -87,9 +108,12 @@ class _HomeState extends State<Home> {
       icon: Icon(Icons.add),
       onPressed: () async {
         String rssLink = await showAddRssDialog(context);
-        RssItemModel rssItem = await RssDao.fetch(rssLink);
+        SingleRss singleRss = await RssDao.fetch(rssLink);
+        
+        if (singleRss == null) return;
+
         var rssDao = RssDao();
-        rssDao.insert(rssItem);
+        rssDao.insert(singleRss);
       }
     );
   }
