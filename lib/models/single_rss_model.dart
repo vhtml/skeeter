@@ -1,7 +1,7 @@
 class SingleRss {
   final int id;
   final String iconUrl;
-  final String title;
+  String title;
   final String link;
   final String lastBuildDate;
   final int createdAt;

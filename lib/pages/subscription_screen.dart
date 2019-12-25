@@ -1,36 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:skeeter/dao/rss_dao.dart';
+import 'package:skeeter/models/single_rss_model.dart';
 
-class SubscriptionScreen extends StatefulWidget {
-  @override
-  _SubscriptionScreenState createState() => _SubscriptionScreenState();
-}
+class SubscriptionScreen extends StatelessWidget{
+  final List<SingleRss> rssList;
+  final Function updateTitle;
+  final Function unsubscribe;
+  final Function markAsRead;
 
-class _SubscriptionScreenState extends State<SubscriptionScreen> with AutomaticKeepAliveClientMixin {
-  var _rssList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    getRssList().then((rssList) {
-      setState(() {
-        _rssList = rssList ?? [];
-      });
-    });
-  }
-
-  getRssList() async {
-    var rssDao = RssDao();
-    return await rssDao.queryAll();
-  }
+  SubscriptionScreen({this.rssList, this.updateTitle, this.unsubscribe, this.markAsRead});
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return ListView.builder(
-      itemCount: _rssList.length,
+      itemCount: rssList.length,
       itemBuilder: (context, i) {
-        var rssItem = _rssList[i];
+        var rssItem = rssList[i];
         return ListTile(
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -49,12 +33,75 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> with AutomaticK
               ),
               Text('10', style: TextStyle(color: Colors.grey, fontSize: 14.0))
             ],
-          )
+          ),
+          onLongPress: () async {
+            var command = await _showActionDialog(context, rssItem);
+
+            switch (command) {
+              case 'RENAME':
+                var text = await _showRenameDialog(context, rssItem);
+                if (text == null || text.trim().isEmpty) return;
+                this.updateTitle(rssItem, text);
+                break;
+              case 'MARK':
+                print('标记');
+                break;
+              case 'UNSUBSCRIBE':
+                this.unsubscribe(rssItem);
+            }
+          }
         );
       }
     );
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  Future _showActionDialog(context, rssItem) async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(rssItem.title),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () { Navigator.pop(context, 'RENAME'); },
+              child: const Text('重命名'),
+            ),
+            SimpleDialogOption(
+              onPressed: () { Navigator.pop(context, 'MARK'); },
+              child: const Text('标记为已读'),
+            ),
+            SimpleDialogOption(
+              onPressed: () { Navigator.pop(context, 'UNSUBSCRIBE'); },
+              child: const Text('取消订阅'),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  Future _showRenameDialog(context, rssItem) async {
+    final controller = TextEditingController(text: rssItem.title);
+
+    return await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('重命名'),
+          content: TextField(
+            controller: controller,
+            autofocus: true
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: const Text('确定'),
+              onPressed: () {
+                Navigator.pop(context, controller.text);
+              }
+            )
+          ]
+        );
+      }
+    );
+  }
 }

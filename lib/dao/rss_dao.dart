@@ -39,15 +39,21 @@ class RssDao extends BaseDBProvider {
   }
 
   // 查询所有数据
-  Future queryAll() async {
+  Future<List<SingleRss>> queryAll() async {
     Database db = await getDatabase();
     List<Map<String, dynamic>> maps = await db.query(tableName());
     List<SingleRss> rssList = maps.map<SingleRss>((el) => SingleRss.fromJson(el)).toList();
     return rssList;
   }
 
+  // 同步所有数据
+  static Future asyncAll(List<SingleRss> rssList) async {
+    var rssFutures = rssList.map((rss) => RssDao.fetch(rss.link)).toList();
+    return Future.wait(rssFutures);
+  }
+
   // 根据url查询数据
-  Future queryByUrl(String url) async {
+  Future _queryByUrl(String url) async {
     if (url.isEmpty) {
       return null;
     }
@@ -59,13 +65,13 @@ class RssDao extends BaseDBProvider {
   }
 
   // 插入数据
-  Future insert(SingleRss rss) async {
-    var res = await queryByUrl(rss.link ?? '');
+  Future<void> insert(SingleRss rss) async {
+    var res = await _queryByUrl(rss.link ?? '');
 
     if (res == null || res.length == 0) {
       Database db = await getDatabase();
       
-      return await db.rawInsert('''
+      await db.rawInsert('''
           INSERT INTO $name (
             $columnIconUrl,
             $columnTitle,
@@ -79,8 +85,21 @@ class RssDao extends BaseDBProvider {
     }
   }
 
-  static _normalizeUrl(String url) {
-    if (!url.contains('.')) {
+  // update title
+  Future<int> updateTitle(SingleRss oldRss, newTitle) async {
+    Database db = await getDatabase();
+    int count = await db.rawUpdate('UPDATE $name SET $columnTitle = ? WHERE $columnId = ?', [newTitle, oldRss.id]);
+    return count;
+  }
+
+  // 删除数据
+  Future<int> delete(int id) async {
+    Database db = await getDatabase();
+    return await db.delete(name, where: '$columnId = ?', whereArgs: [id]);
+  }
+
+  static String _normalizeUrl(String url) {
+    if (url == null || !url.contains('.')) {
       return null;
     }
 
@@ -103,7 +122,7 @@ class RssDao extends BaseDBProvider {
       var rss = RssFeed.parse(response.body);
       return SingleRss(
         iconUrl: rss.image?.url,
-        title: rss.title,
+        title: rss.title == null || rss.title.isEmpty ? Uri.parse(link).host : rss.title,
         link: link,
         lastBuildDate: rss.lastBuildDate
       );

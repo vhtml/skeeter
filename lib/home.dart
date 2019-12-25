@@ -13,12 +13,11 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
-  final List<Widget> _children = [
-    SubscriptionScreen(),
-    DiscoverScreen(),
-    UserScreen(),
-  ];
+
+  List<SingleRss> _rssList = [];
+
   final _pageController = PageController();
+  
   AnimationController _animController;
 
   void _onPageChanged(int index) {
@@ -29,6 +28,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   void onTabTapped(int index) {
     _pageController.jumpToPage(index);
+  }
+
+  Future<List<SingleRss>> getRssList() async {
+    var rssDao = RssDao();
+    var rssList = await rssDao.queryAll();
+    setState(() {
+      _rssList = rssList ?? [];
+    });
+    return rssList;
   }
 
   @override
@@ -43,6 +51,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         _animController.forward();
       }
     });
+
+    getRssList();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _animController.dispose();
+    super.dispose();
   }
 
   @override
@@ -57,11 +74,52 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       body: PageView(
         controller: _pageController,
         onPageChanged: _onPageChanged,
-        children: _children,
+        children: <Widget>[
+          SubscriptionScreen(
+            rssList: _rssList,
+            updateTitle: _updateTitle,
+            unsubscribe: _unsubscribe,
+            markAsRead: _markAsRead
+          ),
+          DiscoverScreen(),
+          UserScreen(),
+        ],
         physics: NeverScrollableScrollPhysics(), // 禁止滑动
       ),
       bottomNavigationBar: _buildBottomNavigationBar()
     );
+  }
+
+  void _unsubscribe(rssItem) async {
+    var rssDao = RssDao();
+    var count = await rssDao.delete(rssItem.id);
+
+    if (count > 0) {
+      _rssList.removeWhere((item) => item.id == rssItem.id);
+      setState(() {
+        _rssList = _rssList;
+      });
+    }
+  }
+
+  void _updateTitle(rssItem, newTitle) async {
+    var rssDao = RssDao();
+    var count = await rssDao.updateTitle(rssItem, newTitle);
+
+    if (count > 0) {
+      _rssList.forEach((item) => {
+        if (item.id == rssItem.id) {
+          item.title = newTitle
+        }
+      });
+      setState(() {
+        _rssList = _rssList;
+      });
+    }
+  }
+
+  void _markAsRead(rssItem) {
+
   }
 
   List<Widget> _buildAppBarActions() {
@@ -91,6 +149,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         icon: Icon(Icons.autorenew),
         onPressed: () {
           _animController.forward();
+          // RssDao.asyncAll();
         }
       )
     );
@@ -108,12 +167,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       icon: Icon(Icons.add),
       onPressed: () async {
         String rssLink = await showAddRssDialog(context);
-        SingleRss singleRss = await RssDao.fetch(rssLink);
-        
-        if (singleRss == null) return;
 
-        var rssDao = RssDao();
-        rssDao.insert(singleRss);
+        _animController.forward(); // 动画开始
+        SingleRss singleRss = await RssDao.fetch(rssLink);
+
+        if (singleRss != null) {
+          var rssDao = RssDao();
+          await rssDao.insert(singleRss);
+        }
+
+        await getRssList();
+        _animController.reset(); // 动画结束并重置
       }
     );
   }
