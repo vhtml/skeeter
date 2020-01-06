@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         FeedListRoute.routeName: (context) => FeedListRoute(rss: ModalRoute.of(context).settings.arguments),
-        FeedDetailRoute.routeName: (context) => FeedDetailRoute(),
+        FeedDetailRoute.routeName: (context) => FeedDetailRoute(args: ModalRoute.of(context).settings.arguments),
         HomeRoute.routeName: (context) => HomeRoute(),
       },
     );

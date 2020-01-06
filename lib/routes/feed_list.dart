@@ -6,11 +6,13 @@ import 'package:skeeter/dao/rss_feed_dao.dart';
 import 'package:skeeter/models/single_rss_feed_model.dart';
 import 'package:skeeter/models/single_rss_model.dart';
 
+import 'feed_detail.dart';
+
 class FeedListRoute extends StatefulWidget {
   static const routeName = '/feed_list';
   final SingleRss rss;
 
-  FeedListRoute({Key key, this.rss, }) : super(key: key);
+  FeedListRoute({Key key, this.rss }) : super(key: key);
 
   @override
   _FeedListRouteState createState() => _FeedListRouteState();
@@ -38,7 +40,6 @@ class _FeedListRouteState extends State<FeedListRoute> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(widget.rss.title),
         elevation: 0,
@@ -49,11 +50,8 @@ class _FeedListRouteState extends State<FeedListRoute> {
         itemBuilder: (context, i) {
           var feed = _feeds[i];
           return FeedListItem(
-            id: feed.id,
-            title: feed.title,
-            description: feed.description,
-            pubDate: feed.pubDate,
-            image: feed.images.split('|')[0] ?? '',
+            feed: feed,
+            rss: widget.rss
           );
         }
       )
@@ -63,35 +61,34 @@ class _FeedListRouteState extends State<FeedListRoute> {
 
 class FeedListItem extends StatelessWidget {
   const FeedListItem({
-    this.id,
-    this.title,
-    this.description,
-    this.pubDate,
-    this.image
+    this.feed,
+    this.rss
   });
 
-  final int id;
-  final String title;
-  final String description;
-  final String pubDate;
-  final String image;
+  final SingleRssFeed feed;
+  final SingleRss rss;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: _FeedDescription(
-              title: title,
-              description: description,
-              pubDate: pubDateFormat(pubDate)
+      child: GestureDetector(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: _FeedDescription(
+                title: feed.title,
+                description: feed.description,
+                pubDate: pubDateFormat(feed.pubDate)
+              ),
             ),
-          ),
-          _Thumbnail(image: image)
-        ]
+            _Thumbnail(image: feed.images.split('|')[0] ?? '')
+          ]
+        ),
+        onTap: () {
+          Navigator.of(context).pushNamed(FeedDetailRoute.routeName, arguments: _DetailArgs(feed: feed, rss: rss));
+        }
       )
     );
   }
@@ -178,4 +175,11 @@ class _FeedDescription extends StatelessWidget {
       )
     );
   }
+}
+
+class _DetailArgs {
+  final SingleRssFeed feed;
+  final SingleRss rss;
+
+  _DetailArgs({this.feed, this.rss});
 }
