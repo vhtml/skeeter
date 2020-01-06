@@ -3,8 +3,11 @@ class SingleRssFeed {
   final int rssId;
   final String title;
   final String author;
+  final String description;
   final String content;
+  final String pubDate;
   final String link;
+  final String images;
   final int createdAt;
 
   SingleRssFeed({
@@ -12,8 +15,11 @@ class SingleRssFeed {
     this.rssId,
     this.title,
     this.author,
+    this.description,
     this.content,
+    this.pubDate,
     this.link,
+    this.images,
     this.createdAt
   });
 
@@ -22,9 +28,12 @@ class SingleRssFeed {
     rssId: json['rss_id'],
     title: json['title'],
     author: json['author'],
+    description: json['description'],
     content: json['content'],
+    pubDate: json['pub_date'],
     link: json['link'],
-    createdAt: json['createdAt'],
+    images: json['images'],
+    createdAt: json['created_at'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -32,8 +41,11 @@ class SingleRssFeed {
     'rss_id': this.rssId,
     'title': this.title,
     'author': this.author,
+    'description': this.description,
     'content': this.content,
+    'pub_date': this.pubDate,
     'link': this.link,
-    'createdAt': this.createdAt
+    'images': this.images,
+    'created_at': this.createdAt
   };
 }

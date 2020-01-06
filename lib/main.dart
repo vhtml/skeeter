@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'routes/feed_detail.dart';
+import 'routes/feed_list.dart';
+import 'routes/home.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,7 +23,11 @@ class MyApp extends StatelessWidget {
           title: TextStyle(color: Colors.black)
         )
       ),
-      home: Home(),
+      routes: {
+        FeedListRoute.routeName: (context) => FeedListRoute(rss: ModalRoute.of(context).settings.arguments),
+        FeedDetailRoute.routeName: (context) => FeedDetailRoute(),
+        HomeRoute.routeName: (context) => HomeRoute(),
+      },
     );
   }
 }

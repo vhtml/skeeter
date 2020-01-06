@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skeeter/models/single_rss_model.dart';
+import 'package:skeeter/routes/feed_list.dart';
 
 class SubscriptionScreen extends StatelessWidget{
   final List<SingleRss> rssList;
@@ -34,6 +35,9 @@ class SubscriptionScreen extends StatelessWidget{
               Text('10', style: TextStyle(color: Colors.grey, fontSize: 14.0))
             ],
           ),
+          onTap: () {
+            Navigator.of(context).pushNamed(FeedListRoute.routeName, arguments: rssItem);
+          },
           onLongPress: () async {
             var command = await _showActionDialog(context, rssItem);
 
@@ -90,7 +94,8 @@ class SubscriptionScreen extends StatelessWidget{
           title: const Text('重命名'),
           content: TextField(
             controller: controller,
-            autofocus: true
+            autofocus: true,
+            autocorrect: false,
           ),
           actions: <Widget>[
             FlatButton(

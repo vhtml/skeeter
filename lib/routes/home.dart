@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'dao/rss_dao.dart';
-import 'models/single_rss_model.dart';
-import 'pages/discover_screen.dart';
-import 'pages/subscription_screen.dart';
-import 'pages/user_screen.dart';
-import 'common/funcs.dart';
+import '../common/rss_funcs.dart';
+import '../dao/rss_dao.dart';
+import '../models/single_rss_model.dart';
+import '../pages/discover_screen.dart';
+import '../pages/subscription_screen.dart';
+import '../pages/user_screen.dart';
+import '../common/funcs.dart';
 
-class Home extends StatefulWidget {
+class HomeRoute extends StatefulWidget {
+  static const routeName = '/';
+
   @override
-  _HomeState createState() => _HomeState();
+  _HomeRouteState createState() => _HomeRouteState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+class _HomeRouteState extends State<HomeRoute> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
 
   List<SingleRss> _rssList = [];
@@ -57,8 +60,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
-    _pageController.dispose();
-    _animController.dispose();
+    _pageController?.dispose();
+    _animController?.dispose();
     super.dispose();
   }
 
@@ -147,9 +150,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       turns: _animController,
       child: IconButton(
         icon: Icon(Icons.autorenew),
-        onPressed: () {
+        onPressed: () async {
           _animController.forward();
-          // RssDao.asyncAll();
+          var rssList = await getRssList();
+          await syncAllRssFeeds(rssList);
+          _animController.reset();
         }
       )
     );
@@ -169,12 +174,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         String rssLink = await showAddRssDialog(context);
 
         _animController.forward(); // 动画开始
-        SingleRss singleRss = await RssDao.fetch(rssLink);
-
-        if (singleRss != null) {
-          var rssDao = RssDao();
-          await rssDao.insert(singleRss);
-        }
+        
+        await addRssWithFeeds(rssLink);
 
         await getRssList();
         _animController.reset(); // 动画结束并重置
